@@ -1,4 +1,5 @@
 apply plugin: 'com.android.application'
+apply plugin: 'org.greenrobot.greendao'
 
 android {
     compileSdkVersion 25
@@ -19,12 +20,22 @@ android {
     }
 }
 
+greendao {
+    schemaVersion 1//数据库版本号    
+    daoPackage 'com.holmeslei.greendaodemo.database'//设置DaoMaster、DaoSession、Dao包名    
+    targetGenDir 'src/main/java'//设置DaoMaster、DaoSession、Dao目录   
+    //targetGenDirTest：设置生成单元测试目录    
+    //generateTests：设置自动生成单元测试用例
+}
+
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
+    testCompile 'junit:junit:4.12'
     androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+    compile 'org.greenrobot:greendao:3.2.0'
     compile 'com.android.support:appcompat-v7:25.3.1'
     compile 'com.android.support.constraint:constraint-layout:1.0.0-alpha7'
-    testCompile 'junit:junit:4.12'
 }
+
