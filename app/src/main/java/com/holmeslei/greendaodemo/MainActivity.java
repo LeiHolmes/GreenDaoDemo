@@ -57,16 +57,17 @@ public class MainActivity extends Activity implements View.OnClickListener {
                 deleteAll();
                 break;
             case R.id.main_update:
-            update();
-            break;
+                update();
+                break;
             case R.id.main_quary:
-            quary();
-            break;
+                quary();
+                break;
         }
     }
 
     /**
      * 增
+     * id传null回自动设置自增长
      */
     private void insert() {
         NotePoint notePoint1 = new NotePoint(null, 0, 55f, 100f, 123456f, 0, 122f, 1, 1);
@@ -86,6 +87,9 @@ public class MainActivity extends Activity implements View.OnClickListener {
 
     /**
      * 删
+     * deleteBykey(Long key) ：根据主键删除一条记录。
+     * delete(User entity) ：根据实体类删除一条记录，一般结合查询方法，查询出一条记录之后删除。
+     * deleteAll()： 删除所有记录。
      */
     private void delete() {
         List<NotePoint> deleteList = notePointDao.queryBuilder().where(NotePointDao.Properties.PageIndex.eq(2)).build().list();
@@ -122,6 +126,11 @@ public class MainActivity extends Activity implements View.OnClickListener {
 
     /**
      * 查
+     * loadAll()：查询所有记录
+     * load(Long key)：根据主键查询一条记录
+     * queryBuilder().list()：返回：List
+     * queryBuilder().where(UserDao.Properties.Name.eq("")).l
+     * queryRaw(String where,String selectionArg)：返回：List
      */
     private void quary() {
         List<NotePoint> quaryList = notePointDao.queryBuilder().list();
