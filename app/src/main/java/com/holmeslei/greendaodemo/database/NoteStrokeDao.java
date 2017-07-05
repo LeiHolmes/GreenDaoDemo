@@ -27,7 +27,7 @@ public class NoteStrokeDao extends AbstractDao<NoteStroke, Long> {
      * Can be used for QueryBuilder and for referencing column names.
      */
     public static class Properties {
-        public final static Property Id = new Property(0, long.class, "id", true, "_id");
+        public final static Property Id = new Property(0, Long.class, "id", true, "_id");
         public final static Property PageId = new Property(1, long.class, "pageId", false, "PAGE_ID");
         public final static Property StrokeColor = new Property(2, int.class, "strokeColor", false, "STROKE_COLOR");
     }
@@ -49,7 +49,7 @@ public class NoteStrokeDao extends AbstractDao<NoteStroke, Long> {
     public static void createTable(Database db, boolean ifNotExists) {
         String constraint = ifNotExists? "IF NOT EXISTS ": "";
         db.execSQL("CREATE TABLE " + constraint + "\"NOTE_STROKE\" (" + //
-                "\"_id\" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL ," + // 0: id
+                "\"_id\" INTEGER PRIMARY KEY AUTOINCREMENT ," + // 0: id
                 "\"PAGE_ID\" INTEGER NOT NULL ," + // 1: pageId
                 "\"STROKE_COLOR\" INTEGER NOT NULL );"); // 2: strokeColor
     }
@@ -63,7 +63,11 @@ public class NoteStrokeDao extends AbstractDao<NoteStroke, Long> {
     @Override
     protected final void bindValues(DatabaseStatement stmt, NoteStroke entity) {
         stmt.clearBindings();
-        stmt.bindLong(1, entity.getId());
+ 
+        Long id = entity.getId();
+        if (id != null) {
+            stmt.bindLong(1, id);
+        }
         stmt.bindLong(2, entity.getPageId());
         stmt.bindLong(3, entity.getStrokeColor());
     }
@@ -71,7 +75,11 @@ public class NoteStrokeDao extends AbstractDao<NoteStroke, Long> {
     @Override
     protected final void bindValues(SQLiteStatement stmt, NoteStroke entity) {
         stmt.clearBindings();
-        stmt.bindLong(1, entity.getId());
+ 
+        Long id = entity.getId();
+        if (id != null) {
+            stmt.bindLong(1, id);
+        }
         stmt.bindLong(2, entity.getPageId());
         stmt.bindLong(3, entity.getStrokeColor());
     }
@@ -84,13 +92,13 @@ public class NoteStrokeDao extends AbstractDao<NoteStroke, Long> {
 
     @Override
     public Long readKey(Cursor cursor, int offset) {
-        return cursor.getLong(offset + 0);
+        return cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0);
     }    
 
     @Override
     public NoteStroke readEntity(Cursor cursor, int offset) {
         NoteStroke entity = new NoteStroke( //
-            cursor.getLong(offset + 0), // id
+            cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0), // id
             cursor.getLong(offset + 1), // pageId
             cursor.getInt(offset + 2) // strokeColor
         );
@@ -99,7 +107,7 @@ public class NoteStrokeDao extends AbstractDao<NoteStroke, Long> {
      
     @Override
     public void readEntity(Cursor cursor, NoteStroke entity, int offset) {
-        entity.setId(cursor.getLong(offset + 0));
+        entity.setId(cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0));
         entity.setPageId(cursor.getLong(offset + 1));
         entity.setStrokeColor(cursor.getInt(offset + 2));
      }
@@ -121,7 +129,7 @@ public class NoteStrokeDao extends AbstractDao<NoteStroke, Long> {
 
     @Override
     public boolean hasKey(NoteStroke entity) {
-        throw new UnsupportedOperationException("Unsupported for entities with a non-null key");
+        return entity.getId() != null;
     }
 
     @Override

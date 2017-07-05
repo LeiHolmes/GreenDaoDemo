@@ -24,7 +24,7 @@ public class NoteBookDao extends AbstractDao<NoteBook, Long> {
      * Can be used for QueryBuilder and for referencing column names.
      */
     public static class Properties {
-        public final static Property Id = new Property(0, long.class, "id", true, "_id");
+        public final static Property Id = new Property(0, Long.class, "id", true, "_id");
         public final static Property BookName = new Property(1, String.class, "bookName", false, "BOOK_NAME");
     }
 
@@ -44,7 +44,7 @@ public class NoteBookDao extends AbstractDao<NoteBook, Long> {
     public static void createTable(Database db, boolean ifNotExists) {
         String constraint = ifNotExists? "IF NOT EXISTS ": "";
         db.execSQL("CREATE TABLE " + constraint + "\"NOTE_BOOK\" (" + //
-                "\"_id\" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL ," + // 0: id
+                "\"_id\" INTEGER PRIMARY KEY AUTOINCREMENT ," + // 0: id
                 "\"BOOK_NAME\" TEXT);"); // 1: bookName
     }
 
@@ -57,7 +57,11 @@ public class NoteBookDao extends AbstractDao<NoteBook, Long> {
     @Override
     protected final void bindValues(DatabaseStatement stmt, NoteBook entity) {
         stmt.clearBindings();
-        stmt.bindLong(1, entity.getId());
+ 
+        Long id = entity.getId();
+        if (id != null) {
+            stmt.bindLong(1, id);
+        }
  
         String bookName = entity.getBookName();
         if (bookName != null) {
@@ -68,7 +72,11 @@ public class NoteBookDao extends AbstractDao<NoteBook, Long> {
     @Override
     protected final void bindValues(SQLiteStatement stmt, NoteBook entity) {
         stmt.clearBindings();
-        stmt.bindLong(1, entity.getId());
+ 
+        Long id = entity.getId();
+        if (id != null) {
+            stmt.bindLong(1, id);
+        }
  
         String bookName = entity.getBookName();
         if (bookName != null) {
@@ -84,13 +92,13 @@ public class NoteBookDao extends AbstractDao<NoteBook, Long> {
 
     @Override
     public Long readKey(Cursor cursor, int offset) {
-        return cursor.getLong(offset + 0);
+        return cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0);
     }    
 
     @Override
     public NoteBook readEntity(Cursor cursor, int offset) {
         NoteBook entity = new NoteBook( //
-            cursor.getLong(offset + 0), // id
+            cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0), // id
             cursor.isNull(offset + 1) ? null : cursor.getString(offset + 1) // bookName
         );
         return entity;
@@ -98,7 +106,7 @@ public class NoteBookDao extends AbstractDao<NoteBook, Long> {
      
     @Override
     public void readEntity(Cursor cursor, NoteBook entity, int offset) {
-        entity.setId(cursor.getLong(offset + 0));
+        entity.setId(cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0));
         entity.setBookName(cursor.isNull(offset + 1) ? null : cursor.getString(offset + 1));
      }
     
@@ -119,7 +127,7 @@ public class NoteBookDao extends AbstractDao<NoteBook, Long> {
 
     @Override
     public boolean hasKey(NoteBook entity) {
-        throw new UnsupportedOperationException("Unsupported for entities with a non-null key");
+        return entity.getId() != null;
     }
 
     @Override

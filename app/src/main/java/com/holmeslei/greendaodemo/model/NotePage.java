@@ -19,7 +19,7 @@ import com.holmeslei.greendaodemo.database.NotePageDao;
 @Entity
 public class NotePage {
     @Id(autoincrement = true)
-    private long id;
+    private Long id;
     private int pageIndex;
     private long bookId;
     @ToMany(referencedJoinProperty = "pageId") //页线一对多
@@ -30,8 +30,8 @@ public class NotePage {
     /** Used for active entity operations. */
     @Generated(hash = 1639320209)
     private transient NotePageDao myDao;
-    @Generated(hash = 2144343862)
-    public NotePage(long id, int pageIndex, long bookId) {
+    @Generated(hash = 852888909)
+    public NotePage(Long id, int pageIndex, long bookId) {
         this.id = id;
         this.pageIndex = pageIndex;
         this.bookId = bookId;
@@ -39,10 +39,10 @@ public class NotePage {
     @Generated(hash = 1457843902)
     public NotePage() {
     }
-    public long getId() {
+    public Long getId() {
         return this.id;
     }
-    public void setId(long id) {
+    public void setId(Long id) {
         this.id = id;
     }
     public int getPageIndex() {

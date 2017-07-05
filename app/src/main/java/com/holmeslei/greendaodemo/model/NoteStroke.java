@@ -19,7 +19,7 @@ import com.holmeslei.greendaodemo.database.NoteStrokeDao;
 @Entity
 public class NoteStroke {
     @Id(autoincrement = true)
-    private long id;
+    private Long id;
     private long pageId;
     private int strokeColor;
     @ToMany(referencedJoinProperty = "strokeId") //线点
@@ -30,8 +30,8 @@ public class NoteStroke {
     /** Used for active entity operations. */
     @Generated(hash = 1790906883)
     private transient NoteStrokeDao myDao;
-    @Generated(hash = 1800441886)
-    public NoteStroke(long id, long pageId, int strokeColor) {
+    @Generated(hash = 1054830776)
+    public NoteStroke(Long id, long pageId, int strokeColor) {
         this.id = id;
         this.pageId = pageId;
         this.strokeColor = strokeColor;
@@ -39,10 +39,10 @@ public class NoteStroke {
     @Generated(hash = 566528330)
     public NoteStroke() {
     }
-    public long getId() {
+    public Long getId() {
         return this.id;
     }
-    public void setId(long id) {
+    public void setId(Long id) {
         this.id = id;
     }
     public long getPageId() {

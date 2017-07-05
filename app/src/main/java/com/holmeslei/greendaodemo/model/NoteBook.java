@@ -19,7 +19,7 @@ import com.holmeslei.greendaodemo.database.NoteBookDao;
 @Entity
 public class NoteBook {
     @Id(autoincrement = true)
-    private long id;
+    private Long id;
     private String bookName;
     @ToMany(referencedJoinProperty = "bookId") //本页一对多
     private List<NotePage> pageList;
@@ -29,18 +29,18 @@ public class NoteBook {
     /** Used for active entity operations. */
     @Generated(hash = 1692630944)
     private transient NoteBookDao myDao;
-    @Generated(hash = 1053829)
-    public NoteBook(long id, String bookName) {
+    @Generated(hash = 372042495)
+    public NoteBook(Long id, String bookName) {
         this.id = id;
         this.bookName = bookName;
     }
     @Generated(hash = 2066935268)
     public NoteBook() {
     }
-    public long getId() {
+    public Long getId() {
         return this.id;
     }
-    public void setId(long id) {
+    public void setId(Long id) {
         this.id = id;
     }
     public String getBookName() {

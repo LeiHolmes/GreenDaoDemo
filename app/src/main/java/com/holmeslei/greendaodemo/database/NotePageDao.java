@@ -27,7 +27,7 @@ public class NotePageDao extends AbstractDao<NotePage, Long> {
      * Can be used for QueryBuilder and for referencing column names.
      */
     public static class Properties {
-        public final static Property Id = new Property(0, long.class, "id", true, "_id");
+        public final static Property Id = new Property(0, Long.class, "id", true, "_id");
         public final static Property PageIndex = new Property(1, int.class, "pageIndex", false, "PAGE_INDEX");
         public final static Property BookId = new Property(2, long.class, "bookId", false, "BOOK_ID");
     }
@@ -49,7 +49,7 @@ public class NotePageDao extends AbstractDao<NotePage, Long> {
     public static void createTable(Database db, boolean ifNotExists) {
         String constraint = ifNotExists? "IF NOT EXISTS ": "";
         db.execSQL("CREATE TABLE " + constraint + "\"NOTE_PAGE\" (" + //
-                "\"_id\" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL ," + // 0: id
+                "\"_id\" INTEGER PRIMARY KEY AUTOINCREMENT ," + // 0: id
                 "\"PAGE_INDEX\" INTEGER NOT NULL ," + // 1: pageIndex
                 "\"BOOK_ID\" INTEGER NOT NULL );"); // 2: bookId
     }
@@ -63,7 +63,11 @@ public class NotePageDao extends AbstractDao<NotePage, Long> {
     @Override
     protected final void bindValues(DatabaseStatement stmt, NotePage entity) {
         stmt.clearBindings();
-        stmt.bindLong(1, entity.getId());
+ 
+        Long id = entity.getId();
+        if (id != null) {
+            stmt.bindLong(1, id);
+        }
         stmt.bindLong(2, entity.getPageIndex());
         stmt.bindLong(3, entity.getBookId());
     }
@@ -71,7 +75,11 @@ public class NotePageDao extends AbstractDao<NotePage, Long> {
     @Override
     protected final void bindValues(SQLiteStatement stmt, NotePage entity) {
         stmt.clearBindings();
-        stmt.bindLong(1, entity.getId());
+ 
+        Long id = entity.getId();
+        if (id != null) {
+            stmt.bindLong(1, id);
+        }
         stmt.bindLong(2, entity.getPageIndex());
         stmt.bindLong(3, entity.getBookId());
     }
@@ -84,13 +92,13 @@ public class NotePageDao extends AbstractDao<NotePage, Long> {
 
     @Override
     public Long readKey(Cursor cursor, int offset) {
-        return cursor.getLong(offset + 0);
+        return cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0);
     }    
 
     @Override
     public NotePage readEntity(Cursor cursor, int offset) {
         NotePage entity = new NotePage( //
-            cursor.getLong(offset + 0), // id
+            cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0), // id
             cursor.getInt(offset + 1), // pageIndex
             cursor.getLong(offset + 2) // bookId
         );
@@ -99,7 +107,7 @@ public class NotePageDao extends AbstractDao<NotePage, Long> {
      
     @Override
     public void readEntity(Cursor cursor, NotePage entity, int offset) {
-        entity.setId(cursor.getLong(offset + 0));
+        entity.setId(cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0));
         entity.setPageIndex(cursor.getInt(offset + 1));
         entity.setBookId(cursor.getLong(offset + 2));
      }
@@ -121,7 +129,7 @@ public class NotePageDao extends AbstractDao<NotePage, Long> {
 
     @Override
     public boolean hasKey(NotePage entity) {
-        throw new UnsupportedOperationException("Unsupported for entities with a non-null key");
+        return entity.getId() != null;
     }
 
     @Override
