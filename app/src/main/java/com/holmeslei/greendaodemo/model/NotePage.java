@@ -5,8 +5,10 @@ import org.greenrobot.greendao.annotation.Id;
 import org.greenrobot.greendao.annotation.ToMany;
 
 import java.util.List;
+
 import org.greenrobot.greendao.annotation.Generated;
 import org.greenrobot.greendao.DaoException;
+
 import com.holmeslei.greendaodemo.database.DaoSession;
 import com.holmeslei.greendaodemo.database.NoteStrokeDao;
 import com.holmeslei.greendaodemo.database.NotePageDao;
@@ -22,41 +24,54 @@ public class NotePage {
     private Long id;
     private int pageIndex;
     private long bookId;
-    @ToMany(referencedJoinProperty = "pageId") //页线一对多
+    @ToMany(referencedJoinProperty = "pageId") //页线一对多，NoteStroke类的pageId作为外键，与NotePage的主键相连。
     private List<NoteStroke> strokeList;
-    /** Used to resolve relations */
+    /**
+     * Used to resolve relations
+     */
     @Generated(hash = 2040040024)
     private transient DaoSession daoSession;
-    /** Used for active entity operations. */
+    /**
+     * Used for active entity operations.
+     */
     @Generated(hash = 1639320209)
     private transient NotePageDao myDao;
+
     @Generated(hash = 852888909)
     public NotePage(Long id, int pageIndex, long bookId) {
         this.id = id;
         this.pageIndex = pageIndex;
         this.bookId = bookId;
     }
+
     @Generated(hash = 1457843902)
     public NotePage() {
     }
+
     public Long getId() {
         return this.id;
     }
+
     public void setId(Long id) {
         this.id = id;
     }
+
     public int getPageIndex() {
         return this.pageIndex;
     }
+
     public void setPageIndex(int pageIndex) {
         this.pageIndex = pageIndex;
     }
+
     public long getBookId() {
         return this.bookId;
     }
+
     public void setBookId(long bookId) {
         this.bookId = bookId;
     }
+
     /**
      * To-many relationship, resolved on first access (and after reset).
      * Changes to to-many relations are not persisted, make changes to the target entity.
@@ -79,11 +94,15 @@ public class NotePage {
         }
         return strokeList;
     }
-    /** Resets a to-many relationship, making the next get call to query for a fresh result. */
+
+    /**
+     * Resets a to-many relationship, making the next get call to query for a fresh result.
+     */
     @Generated(hash = 531561772)
     public synchronized void resetStrokeList() {
         strokeList = null;
     }
+
     /**
      * Convenient call for {@link org.greenrobot.greendao.AbstractDao#delete(Object)}.
      * Entity must attached to an entity context.
@@ -95,6 +114,7 @@ public class NotePage {
         }
         myDao.delete(this);
     }
+
     /**
      * Convenient call for {@link org.greenrobot.greendao.AbstractDao#refresh(Object)}.
      * Entity must attached to an entity context.
@@ -106,6 +126,7 @@ public class NotePage {
         }
         myDao.refresh(this);
     }
+
     /**
      * Convenient call for {@link org.greenrobot.greendao.AbstractDao#update(Object)}.
      * Entity must attached to an entity context.
@@ -117,7 +138,10 @@ public class NotePage {
         }
         myDao.update(this);
     }
-    /** called by internal mechanisms, do not call yourself. */
+
+    /**
+     * called by internal mechanisms, do not call yourself.
+     */
     @Generated(hash = 165825040)
     public void __setDaoSession(DaoSession daoSession) {
         this.daoSession = daoSession;
