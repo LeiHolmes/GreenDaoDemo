@@ -147,6 +147,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
         //注意不要插入两次数据，否则此处会报查询结果不唯一的Exception
         Company company = companyDao.queryBuilder().where(CompanyDao.Properties.CompanyName.eq("Netease")).unique();
         if (company != null) {
+            
             List<Employee> employeeList = employeeDao.queryBuilder().where(EmployeeDao.Properties.CompanyId.eq(company.getId()),
                     EmployeeDao.Properties.Salary.le(13000)).list();
             if (employeeList != null) {
