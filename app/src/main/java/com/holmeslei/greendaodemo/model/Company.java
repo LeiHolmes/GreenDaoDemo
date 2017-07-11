@@ -20,16 +20,20 @@ import com.holmeslei.greendaodemo.database.CompanyDao;
  */
 @Entity
 public class Company {
-    @Id(autoincrement = true) //id主键自增
-    private Long id;
-    private String companyName;
-    private String industry;
+    @Id(autoincrement = true) //自增
+    private Long id; //主键
+    private String companyName; //公司名称
+    private String industry; //行业
     @ToMany(referencedJoinProperty = "companyId") //公司与雇员建立一对多关系，设置外键companyId
     private List<Employee> employeeList;
-    /** Used to resolve relations */
+    /**
+     * Used to resolve relations
+     */
     @Generated(hash = 2040040024)
     private transient DaoSession daoSession;
-    /** Used for active entity operations. */
+    /**
+     * Used for active entity operations.
+     */
     @Generated(hash = 458770942)
     private transient CompanyDao myDao;
 
@@ -50,7 +54,7 @@ public class Company {
                 "id=" + id +
                 ", companyName='" + companyName + '\'' +
                 ", industry='" + industry + '\'' +
-                '}' + "\n";
+                '}';
     }
 
     public Long getId() {
@@ -100,7 +104,9 @@ public class Company {
         return employeeList;
     }
 
-    /** Resets a to-many relationship, making the next get call to query for a fresh result. */
+    /**
+     * Resets a to-many relationship, making the next get call to query for a fresh result.
+     */
     @Generated(hash = 738888862)
     public synchronized void resetEmployeeList() {
         employeeList = null;
@@ -142,7 +148,9 @@ public class Company {
         myDao.update(this);
     }
 
-    /** called by internal mechanisms, do not call yourself. */
+    /**
+     * called by internal mechanisms, do not call yourself.
+     */
     @Generated(hash = 1533027800)
     public void __setDaoSession(DaoSession daoSession) {
         this.daoSession = daoSession;

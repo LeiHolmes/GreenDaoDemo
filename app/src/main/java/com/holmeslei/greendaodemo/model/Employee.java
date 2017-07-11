@@ -12,10 +12,10 @@ import org.greenrobot.greendao.annotation.Generated;
 @Entity
 public class Employee {
     @Id(autoincrement = true)
-    private Long id;
+    private Long id; //主键
     private long companyId; //指向Company主键
-    private String employeeName;
-    private int salary;
+    private String employeeName; //雇员姓名
+    private int salary; //薪水
 
     @Generated(hash = 1405154464)
     public Employee(Long id, long companyId, String employeeName, int salary) {
