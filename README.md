@@ -1,8 +1,3 @@
-title: "Android开发ORM框架之GreenDao3.0集成与注解"
-date: 2017-07-10
-categories: Android
-tags: GreenDao
----
 ### GreenDao简介  
 　　GreenDao是一个将对象映射到SQLite数据库中的轻量且快速的ORM数据库框架，本文将讲解如何集成GreenDao3.0环境，如何使用GreenDao自动生成代码及注解的使用。
 　　<!--more-->
