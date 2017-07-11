@@ -4,11 +4,11 @@
 　　[GreenDao GitHub](https://github.com/greenrobot/greenDAO)
 ### GreenDao3.0优势
 　　GreenDao相较于ORMLite等其他数据库框架有以下优势：
-　　1. 一个精简的库
-　　2. 性能最大化
-　　3. 内存开销最小化
-　　4. 易于使用的 APIs
-　　5. 对 Android 进行高度优化
+1. 一个精简的库
+2. 性能最大化
+3. 内存开销最小化
+4. 易于使用的 APIs
+5. 对 Android 进行高度优化
 　　而GreenDao3.0的版本主要使用注解方式定义实体类，通过gradle插件生成相应的代码。相较于3.0之前的版本集成步骤更为便捷，使用起来也更为简单。本文使用的版本为3.2.0。
 ### 集成
 #### 项目下build.gradle
