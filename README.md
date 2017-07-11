@@ -3,7 +3,7 @@
 　　[GreenDao官网](http://greenrobot.org/greendao/)  
 　　[GreenDao GitHub](https://github.com/greenrobot/greenDAO)
 ### GreenDao3.0优势
-　　GreenDao相较于ORMLite等其他数据库框架有以下优势：
+　　GreenDao相较于ORMLite等其他数据库框架有以下优势：  
 　　1. 一个精简的库  
 　　2. 性能最大化  
 　　3. 内存开销最小化  
