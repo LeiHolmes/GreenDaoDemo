@@ -10,42 +10,47 @@ import org.greenrobot.greendao.annotation.Generated;
 import org.greenrobot.greendao.DaoException;
 
 import com.holmeslei.greendaodemo.database.DaoSession;
-import com.holmeslei.greendaodemo.database.NotePointDao;
-import com.holmeslei.greendaodemo.database.NoteStrokeDao;
+import com.holmeslei.greendaodemo.database.EmployeeDao;
+import com.holmeslei.greendaodemo.database.CompanyDao;
 
 /**
- * Description:   线
+ * Description:   公司实体类
  * author         xulei
- * Date           2017/7/5
+ * Date           2017/7/10
  */
 @Entity
-public class NoteStroke {
-    @Id(autoincrement = true)
+public class Company {
+    @Id(autoincrement = true) //id主键自增
     private Long id;
-    private long pageId;
-    private int strokeColor;
-    @ToMany(referencedJoinProperty = "strokeId") //线点一对多,NotePoint类的strokeId作为外键，与NoteStroke的主键相连。
-    private List<NotePoint> pointList;
-    /**
-     * Used to resolve relations
-     */
+    private String companyName;
+    private String industry;
+    @ToMany(referencedJoinProperty = "companyId") //公司与雇员建立一对多关系，设置外键companyId
+    private List<Employee> employeeList;
+    /** Used to resolve relations */
     @Generated(hash = 2040040024)
     private transient DaoSession daoSession;
-    /**
-     * Used for active entity operations.
-     */
-    @Generated(hash = 1790906883)
-    private transient NoteStrokeDao myDao;
+    /** Used for active entity operations. */
+    @Generated(hash = 458770942)
+    private transient CompanyDao myDao;
 
-    @Generated(hash = 1054830776)
-    public NoteStroke(Long id, long pageId, int strokeColor) {
+    @Generated(hash = 564257326)
+    public Company(Long id, String companyName, String industry) {
         this.id = id;
-        this.pageId = pageId;
-        this.strokeColor = strokeColor;
+        this.companyName = companyName;
+        this.industry = industry;
     }
 
-    @Generated(hash = 566528330)
-    public NoteStroke() {
+    @Generated(hash = 1096856789)
+    public Company() {
+    }
+
+    @Override
+    public String toString() {
+        return "Company{" +
+                "id=" + id +
+                ", companyName='" + companyName + '\'' +
+                ", industry='" + industry + '\'' +
+                '}' + "\n";
     }
 
     public Long getId() {
@@ -56,50 +61,49 @@ public class NoteStroke {
         this.id = id;
     }
 
-    public long getPageId() {
-        return this.pageId;
+    public String getCompanyName() {
+        return this.companyName;
     }
 
-    public void setPageId(long pageId) {
-        this.pageId = pageId;
+    public void setCompanyName(String companyName) {
+        this.companyName = companyName;
     }
 
-    public int getStrokeColor() {
-        return this.strokeColor;
+    public String getIndustry() {
+        return this.industry;
     }
 
-    public void setStrokeColor(int strokeColor) {
-        this.strokeColor = strokeColor;
+    public void setIndustry(String industry) {
+        this.industry = industry;
     }
 
     /**
      * To-many relationship, resolved on first access (and after reset).
      * Changes to to-many relations are not persisted, make changes to the target entity.
      */
-    @Generated(hash = 1384534157)
-    public List<NotePoint> getPointList() {
-        if (pointList == null) {
+    @Generated(hash = 1108837057)
+    public List<Employee> getEmployeeList() {
+        if (employeeList == null) {
             final DaoSession daoSession = this.daoSession;
             if (daoSession == null) {
                 throw new DaoException("Entity is detached from DAO context");
             }
-            NotePointDao targetDao = daoSession.getNotePointDao();
-            List<NotePoint> pointListNew = targetDao._queryNoteStroke_PointList(id);
+            EmployeeDao targetDao = daoSession.getEmployeeDao();
+            List<Employee> employeeListNew = targetDao
+                    ._queryCompany_EmployeeList(id);
             synchronized (this) {
-                if (pointList == null) {
-                    pointList = pointListNew;
+                if (employeeList == null) {
+                    employeeList = employeeListNew;
                 }
             }
         }
-        return pointList;
+        return employeeList;
     }
 
-    /**
-     * Resets a to-many relationship, making the next get call to query for a fresh result.
-     */
-    @Generated(hash = 18518400)
-    public synchronized void resetPointList() {
-        pointList = null;
+    /** Resets a to-many relationship, making the next get call to query for a fresh result. */
+    @Generated(hash = 738888862)
+    public synchronized void resetEmployeeList() {
+        employeeList = null;
     }
 
     /**
@@ -138,12 +142,10 @@ public class NoteStroke {
         myDao.update(this);
     }
 
-    /**
-     * called by internal mechanisms, do not call yourself.
-     */
-    @Generated(hash = 1078723076)
+    /** called by internal mechanisms, do not call yourself. */
+    @Generated(hash = 1533027800)
     public void __setDaoSession(DaoSession daoSession) {
         this.daoSession = daoSession;
-        myDao = daoSession != null ? daoSession.getNoteStrokeDao() : null;
+        myDao = daoSession != null ? daoSession.getCompanyDao() : null;
     }
 }

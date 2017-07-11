@@ -20,7 +20,7 @@ public class GreenDaoUtil {
      * 建议放在Application中执行
      */
     public static void initDataBase(Context context) {
-        DaoMaster.DevOpenHelper devOpenHelper = new DaoMaster.DevOpenHelper(context, "magicalpen.db", null);
+        DaoMaster.DevOpenHelper devOpenHelper = new DaoMaster.DevOpenHelper(context, "greendaoutil.db", null);
         SQLiteDatabase database = devOpenHelper.getWritableDatabase();
         DaoMaster daoMaster = new DaoMaster(database);
         daoSession = daoMaster.newSession();

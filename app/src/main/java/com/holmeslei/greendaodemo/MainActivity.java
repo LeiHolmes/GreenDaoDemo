@@ -5,17 +5,25 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.holmeslei.greendaodemo.database.CompanyDao;
 import com.holmeslei.greendaodemo.database.DaoSession;
-import com.holmeslei.greendaodemo.database.NotePointDao;
-import com.holmeslei.greendaodemo.model.NotePoint;
+import com.holmeslei.greendaodemo.database.EmployeeDao;
+import com.holmeslei.greendaodemo.model.Company;
+import com.holmeslei.greendaodemo.model.Employee;
 import com.holmeslei.greendaodemo.util.GreenDaoUtil;
 
 import java.util.List;
-
+/**
+ * Description:   GreenDao3.0使用Demo
+ * author         xulei
+ * Date           2017/7/11 10:30
+ */
 public class MainActivity extends Activity implements View.OnClickListener {
     private TextView tvText;
-    private NotePointDao notePointDao;
+    private CompanyDao companyDao;
+    private EmployeeDao employeeDao;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,8 +36,9 @@ public class MainActivity extends Activity implements View.OnClickListener {
 
     private void initData() {
         DaoSession daoSession = GreenDaoUtil.getDaoSession();
-        notePointDao = daoSession.getNotePointDao();
-        quary();
+        companyDao = daoSession.getCompanyDao();
+        employeeDao = daoSession.getEmployeeDao();
+        quaryAll();
     }
 
     private void initView() {
@@ -47,19 +56,19 @@ public class MainActivity extends Activity implements View.OnClickListener {
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
-            case R.id.main_insert:
+            case R.id.main_insert: //插入
                 insert();
                 break;
-            case R.id.main_delete:
+            case R.id.main_delete: //删除
                 delete();
                 break;
-            case R.id.main_delete_all:
+            case R.id.main_delete_all: //删除所有
                 deleteAll();
                 break;
-            case R.id.main_update:
+            case R.id.main_update: //更新
                 update();
                 break;
-            case R.id.main_quary:
+            case R.id.main_quary: //查询
                 quary();
                 break;
         }
@@ -70,58 +79,101 @@ public class MainActivity extends Activity implements View.OnClickListener {
      * id传null回自动设置自增长
      */
     private void insert() {
-        NotePoint notePoint1 = new NotePoint(null, 0, 55f, 100f, 123456f, 0, 122f, 1, 1);
-        NotePoint notePoint2 = new NotePoint(null, 0, 56f, 99f, 123457f, 0, 132f, 1, 2);
-        NotePoint notePoint3 = new NotePoint(null, 0, 57f, 98f, 123458f, 0, 152f, 2, 2);
-        NotePoint notePoint4 = new NotePoint(null, 0, 58f, 97f, 123459f, 0, 202f, 2, 2);
-        NotePoint notePoint5 = new NotePoint(null, 0, 59f, 96f, 123460f, 0, 102f, 3, 2);
-        NotePoint notePoint6 = new NotePoint(null, 0, 60f, 95f, 123461f, 0, 11f, 3, 3);
-        notePointDao.insert(notePoint1);
-        notePointDao.insert(notePoint2);
-        notePointDao.insert(notePoint3);
-        notePointDao.insert(notePoint4);
-        notePointDao.insert(notePoint5);
-        notePointDao.insert(notePoint6);
-        quary();
+        //插入公司
+        Company company1 = new Company();
+        company1.setId(null);
+        company1.setCompanyName("Netease");
+        company1.setIndustry("news");
+        Company company2 = new Company();
+        company2.setId(null);
+        company2.setCompanyName("Tencent");
+        company2.setIndustry("chat");
+        companyDao.insert(company1);
+        companyDao.insert(company2);
+
+        //插入不同公司的雇员
+        for (int i = 0; i < 5; i++) {
+            Employee employee = new Employee(null, company1.getId(), "Sherlock" + i, 11000 + i * 1000);
+            employeeDao.insert(employee);
+        }
+        for (int i = 0; i < 5; i++) {
+            Employee employee = new Employee(null, company2.getId(), "Richard" + i, 8000 + i * 1000);
+            employeeDao.insert(employee);
+        }
+
+        quaryAll();
     }
 
     /**
-     * 删
+     * 删除Tencent公司中薪水小于10000的人
      * deleteBykey(Long key) ：根据主键删除一条记录。
      * delete(User entity) ：根据实体类删除一条记录，一般结合查询方法，查询出一条记录之后删除。
      * deleteAll()： 删除所有记录。
      */
     private void delete() {
-        List<NotePoint> deleteList = notePointDao.queryBuilder().where(NotePointDao.Properties.PageIndex.eq(2)).build().list();
-        if (deleteList != null) {
-            for (NotePoint notePoint : deleteList) {
-                notePointDao.deleteByKey(notePoint.getId());
+        Toast.makeText(this, "删除Tencent公司中薪水小于10000的人", Toast.LENGTH_LONG).show();
+        //注意不要插入两次数据，否则此处会报查询结果不唯一的Exception
+        Company company = companyDao.queryBuilder().where(CompanyDao.Properties.CompanyName.eq("Tencent")).unique();
+        if (company != null) {
+            List<Employee> employeeList = employeeDao.queryBuilder().where(EmployeeDao.Properties.CompanyId.eq(company.getId()),
+                    EmployeeDao.Properties.Salary.lt(10000)).list();
+            if (employeeList != null) {
+                for (Employee employee : employeeList) {
+                    employeeDao.deleteByKey(employee.getId());
+                }
+            } else {
+                Log.e("greendao_test", "delete:deleteList为空");
             }
+            quaryAll();
         } else {
-            Log.e("greendao_test", "delete:deleteList为空");
+            Log.e("greendao_test", "delete:company为空");
         }
-        quary();
-    }
-
-    private void deleteAll() {
-        notePointDao.deleteAll();
-        quary();
     }
 
     /**
-     * 改
+     * 清空数据库数据
+     */
+    private void deleteAll() {
+        companyDao.deleteAll();
+        employeeDao.deleteAll();
+        quaryAll();
+    }
+
+    /**
+     * 修改Netease公司中薪水小于等于13000人的名字
      */
     private void update() {
-        List<NotePoint> updateList = notePointDao.queryBuilder().where(NotePointDao.Properties.PageIndex.eq(3)).build().list();
-        if (updateList != null) {
-            for (NotePoint notePoint : updateList) {
-                notePoint.setPageIndex(2);
-                notePointDao.update(notePoint);
+        Toast.makeText(this, "修改Netease公司中薪水小于等于13000人的名字", Toast.LENGTH_LONG).show();
+        //注意不要插入两次数据，否则此处会报查询结果不唯一的Exception
+        Company company = companyDao.queryBuilder().where(CompanyDao.Properties.CompanyName.eq("Netease")).unique();
+        if (company != null) {
+            List<Employee> employeeList = employeeDao.queryBuilder().where(EmployeeDao.Properties.CompanyId.eq(company.getId()),
+                    EmployeeDao.Properties.Salary.le(13000)).list();
+            if (employeeList != null) {
+                for (Employee employee : employeeList) {
+                    employee.setEmployeeName("baozi");
+                    employeeDao.update(employee);
+                }
+            } else {
+                Log.e("greendao_test", "update:updateList为空");
             }
+            quaryAll();
         } else {
-            Log.e("greendao_test", "update:updateList为空");
+            Log.e("greendao_test", "update:company为空");
         }
-        quary();
+    }
+
+    /**
+     * 查询Tencent公司中薪水大于等于10000的职员
+     */
+    private void quary() {
+        Toast.makeText(this, "查询Tencent公司中薪水大于等于10000的职员", Toast.LENGTH_LONG).show();
+        Company company = companyDao.queryBuilder().where(CompanyDao.Properties.CompanyName.eq("Tencent")).unique();
+        List<Employee> employeeList = employeeDao.queryBuilder().where((EmployeeDao.Properties.CompanyId.eq(company.getId())))
+                .where(EmployeeDao.Properties.Salary.ge(10000)).list();
+        if (employeeList != null) {
+            tvText.setText(employeeList.toString());
+        }
     }
 
     /**
@@ -132,10 +184,11 @@ public class MainActivity extends Activity implements View.OnClickListener {
      * queryBuilder().where(UserDao.Properties.Name.eq("")).l
      * queryRaw(String where,String selectionArg)：返回：List
      */
-    private void quary() {
-        List<NotePoint> quaryList = notePointDao.queryBuilder().list();
-        if (quaryList != null)
-            tvText.setText(quaryList.toString());
+    private void quaryAll() {
+        List<Company> companyList = companyDao.queryBuilder().build().list();
+        List<Employee> employeeList = employeeDao.queryBuilder().build().list();
+        if (companyList != null && employeeList != null)
+            tvText.setText(companyList.toString() + "\n" + employeeList.toString());
         else {
             Log.e("greendao_test", "quary:quaryList为空");
         }
