@@ -14,7 +14,10 @@ import com.holmeslei.greendaodemo.model.Company;
 import com.holmeslei.greendaodemo.model.Employee;
 import com.holmeslei.greendaodemo.util.GreenDaoUtil;
 
+import org.greenrobot.greendao.query.Query;
+
 import java.util.List;
+
 /**
  * Description:   GreenDao3.0使用Demo
  * author         xulei
@@ -80,24 +83,24 @@ public class MainActivity extends Activity implements View.OnClickListener {
      */
     private void insert() {
         //插入公司
-        Company company1 = new Company();
-        company1.setId(null);
-        company1.setCompanyName("Netease");
-        company1.setIndustry("news");
-        Company company2 = new Company();
-        company2.setId(null);
-        company2.setCompanyName("Tencent");
-        company2.setIndustry("chat");
-        companyDao.insert(company1);
-        companyDao.insert(company2);
+        Company companyNetease = new Company();
+        companyNetease.setId(null);
+        companyNetease.setCompanyName("Netease");
+        companyNetease.setIndustry("news");
+        Company companyTencent = new Company();
+        companyTencent.setId(null);
+        companyTencent.setCompanyName("Tencent");
+        companyTencent.setIndustry("chat");
+        companyDao.insert(companyNetease);
+        companyDao.insert(companyTencent);
 
         //插入不同公司的雇员
         for (int i = 0; i < 5; i++) {
-            Employee employee = new Employee(null, company1.getId(), "Sherlock" + i, 11000 + i * 1000);
+            Employee employee = new Employee(null, companyNetease.getId(), "Sherlock" + i, 11000 + i * 1000);
             employeeDao.insert(employee);
         }
         for (int i = 0; i < 5; i++) {
-            Employee employee = new Employee(null, company2.getId(), "Richard" + i, 8000 + i * 1000);
+            Employee employee = new Employee(null, companyTencent.getId(), "Richard" + i, 8000 + i * 1000);
             employeeDao.insert(employee);
         }
 
@@ -113,9 +116,9 @@ public class MainActivity extends Activity implements View.OnClickListener {
     private void delete() {
         Toast.makeText(this, "删除Tencent公司中薪水小于10000的人", Toast.LENGTH_LONG).show();
         //注意不要插入两次数据，否则此处会报查询结果不唯一的Exception
-        Company company = companyDao.queryBuilder().where(CompanyDao.Properties.CompanyName.eq("Tencent")).unique();
-        if (company != null) {
-            List<Employee> employeeList = employeeDao.queryBuilder().where(EmployeeDao.Properties.CompanyId.eq(company.getId()),
+        Company companyTencent = companyDao.queryBuilder().where(CompanyDao.Properties.CompanyName.eq("Tencent")).unique();
+        if (companyTencent != null) {
+            List<Employee> employeeList = employeeDao.queryBuilder().where(EmployeeDao.Properties.CompanyId.eq(companyTencent.getId()),
                     EmployeeDao.Properties.Salary.lt(10000)).list();
             if (employeeList != null) {
                 for (Employee employee : employeeList) {
@@ -145,10 +148,10 @@ public class MainActivity extends Activity implements View.OnClickListener {
     private void update() {
         Toast.makeText(this, "修改Netease公司中薪水小于等于13000人的名字", Toast.LENGTH_LONG).show();
         //注意不要插入两次数据，否则此处会报查询结果不唯一的Exception
-        Company company = companyDao.queryBuilder().where(CompanyDao.Properties.CompanyName.eq("Netease")).unique();
-        if (company != null) {
-            
-            List<Employee> employeeList = employeeDao.queryBuilder().where(EmployeeDao.Properties.CompanyId.eq(company.getId()),
+        Company companyNetease = companyDao.queryBuilder().where(CompanyDao.Properties.CompanyName.eq("Netease")).unique();
+        if (companyNetease != null) {
+
+            List<Employee> employeeList = employeeDao.queryBuilder().where(EmployeeDao.Properties.CompanyId.eq(companyNetease.getId()),
                     EmployeeDao.Properties.Salary.le(13000)).list();
             if (employeeList != null) {
                 for (Employee employee : employeeList) {
@@ -170,11 +173,19 @@ public class MainActivity extends Activity implements View.OnClickListener {
     private void quary() {
         Toast.makeText(this, "查询Tencent公司中薪水大于等于10000的职员", Toast.LENGTH_LONG).show();
         Company company = companyDao.queryBuilder().where(CompanyDao.Properties.CompanyName.eq("Tencent")).unique();
-        List<Employee> employeeList = employeeDao.queryBuilder().where((EmployeeDao.Properties.CompanyId.eq(company.getId())))
-                .where(EmployeeDao.Properties.Salary.ge(10000)).list();
+        List<Employee> employeeList = employeeDao.queryBuilder().where(EmployeeDao.Properties.CompanyId.eq(company.getId()),
+                EmployeeDao.Properties.Salary.ge(10000)).orderDesc(EmployeeDao.Properties.Salary).list();
         if (employeeList != null) {
             tvText.setText(employeeList.toString());
         }
+
+//        Company company = companyDao.queryBuilder().where(CompanyDao.Properties.CompanyName.eq("Tencent")).unique();
+//        Query query = employeeDao.queryBuilder().where(EmployeeDao.Properties.CompanyId.eq(company.getId()),
+//                EmployeeDao.Properties.Salary.ge(10000)).build();
+//        //修改参数
+//        query.setParameter(0, company.getId());
+//        query.setParameter(0, 11000);
+//        List<Employee> employeeList = query.list();
     }
 
     /**
@@ -182,12 +193,12 @@ public class MainActivity extends Activity implements View.OnClickListener {
      * loadAll()：查询所有记录
      * load(Long key)：根据主键查询一条记录
      * queryBuilder().list()：返回：List
-     * queryBuilder().where(UserDao.Properties.Name.eq("")).l
+     * queryBuilder().where(UserDao.Properties.Name.eq("")).list()
      * queryRaw(String where,String selectionArg)：返回：List
      */
     private void quaryAll() {
-        List<Company> companyList = companyDao.queryBuilder().build().list();
-        List<Employee> employeeList = employeeDao.queryBuilder().build().list();
+        List<Company> companyList = companyDao.loadAll();
+        List<Employee> employeeList = employeeDao.loadAll();
         if (companyList != null && employeeList != null)
             tvText.setText(companyList.toString() + "\n" + employeeList.toString());
         else {
