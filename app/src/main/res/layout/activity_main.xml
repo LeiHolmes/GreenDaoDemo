@@ -1,58 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.holmeslei.greendaodemo.MainActivity">
+    android:gravity="center_horizontal"
+    android:orientation="vertical"
+    tools:context="com.holmeslei.greendaodemo.ui.MainActivity">
 
-    <TextView
-        android:id="@+id/main_text"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:padding="10dp"
-        android:text="Hello GreenDao !"
-        android:textColor="#000"
-        android:textSize="16sp" />
-
-    <LinearLayout
-        android:layout_width="match_parent"
+    <Button
+        android:id="@+id/btn_gd"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true">
+        android:layout_marginTop="50dp"
+        android:onClick="onBtnClick"
+        android:text="GreenDao3" />
 
-        <Button
-            android:id="@+id/main_insert"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="插入" />
-
-        <Button
-            android:id="@+id/main_delete"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="删除" />
-
-        <Button
-            android:id="@+id/main_update"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="更新" />
-
-        <Button
-            android:id="@+id/main_quary"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="查询" />
-        <Button
-            android:id="@+id/main_delete_all"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="清空" />
-    </LinearLayout>
-
-
-</RelativeLayout>
+    <Button
+        android:id="@+id/btn_gd_rx"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:onClick="onBtnClick"
+        android:text="GreenDao3 + RxJava2" />
+</LinearLayout>

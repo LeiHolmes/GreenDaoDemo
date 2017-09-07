@@ -1,4 +1,4 @@
-package com.holmeslei.greendaodemo;
+package com.holmeslei.greendaodemo.ui;
 
 import android.app.Activity;
 import android.os.Bundle;
@@ -7,14 +7,13 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.holmeslei.greendaodemo.R;
 import com.holmeslei.greendaodemo.database.CompanyDao;
 import com.holmeslei.greendaodemo.database.DaoSession;
 import com.holmeslei.greendaodemo.database.EmployeeDao;
-import com.holmeslei.greendaodemo.model.Company;
-import com.holmeslei.greendaodemo.model.Employee;
+import com.holmeslei.greendaodemo.entity.Company;
+import com.holmeslei.greendaodemo.entity.Employee;
 import com.holmeslei.greendaodemo.util.GreenDaoUtil;
-
-import org.greenrobot.greendao.query.Query;
 
 import java.util.List;
 
@@ -23,7 +22,7 @@ import java.util.List;
  * author         xulei
  * Date           2017/7/11 10:30
  */
-public class MainActivity extends Activity implements View.OnClickListener {
+public class GreenDaoActivity extends Activity implements View.OnClickListener {
     private TextView tvText;
     private CompanyDao companyDao;
     private EmployeeDao employeeDao;
@@ -31,7 +30,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_green_dao);
         initView();
         initData();
         initListener();

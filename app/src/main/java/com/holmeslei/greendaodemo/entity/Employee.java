@@ -1,4 +1,4 @@
-package com.holmeslei.greendaodemo.model;
+package com.holmeslei.greendaodemo.entity;
 
 import org.greenrobot.greendao.annotation.Entity;
 import org.greenrobot.greendao.annotation.Id;

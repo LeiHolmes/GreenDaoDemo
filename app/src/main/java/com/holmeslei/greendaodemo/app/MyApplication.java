@@ -1,4 +1,4 @@
-package com.holmeslei.greendaodemo;
+package com.holmeslei.greendaodemo.app;
 
 import android.app.Application;
 

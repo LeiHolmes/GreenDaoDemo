@@ -8,8 +8,8 @@ import org.greenrobot.greendao.database.Database;
 import org.greenrobot.greendao.identityscope.IdentityScopeType;
 import org.greenrobot.greendao.internal.DaoConfig;
 
-import com.holmeslei.greendaodemo.model.Company;
-import com.holmeslei.greendaodemo.model.Employee;
+import com.holmeslei.greendaodemo.entity.Company;
+import com.holmeslei.greendaodemo.entity.Employee;
 
 import com.holmeslei.greendaodemo.database.CompanyDao;
 import com.holmeslei.greendaodemo.database.EmployeeDao;
