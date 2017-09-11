@@ -2,6 +2,7 @@ package com.holmeslei.greendaodemo.ui;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
@@ -14,6 +15,12 @@ import com.holmeslei.greendaodemo.entity.Employee;
 import com.holmeslei.greendaodemo.util.GreenDaoUtil;
 
 import org.greenrobot.greendao.rx.RxDao;
+
+import java.util.List;
+
+import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Action1;
+import rx.schedulers.Schedulers;
 
 /**
  * Description:   GreenDao3.0+RxJava1.0
@@ -89,8 +96,22 @@ public class RxDaoActivity extends AppCompatActivity implements View.OnClickList
         companyTencent.setId(null);
         companyTencent.setCompanyName("Tencent");
         companyTencent.setIndustry("chat");
-        companyDao.insert(companyNetease);
-        companyDao.insert(companyTencent);
+        companyDao.insert(companyNetease)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Action1<Company>() {
+                    @Override
+                    public void call(Company company) {
+                        Log.e("test_gd_rx", "insert：Netease插入完毕");
+                    }
+                });
+        companyDao.insert(companyTencent)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Action1<Company>() {
+                    @Override
+                    public void call(Company company) {
+                        Log.e("test_gd_rx", "insert：Tencent插入完毕");
+                    }
+                });
 
         //插入不同公司的雇员
         for (int i = 0; i < 5; i++) {
@@ -101,7 +122,7 @@ public class RxDaoActivity extends AppCompatActivity implements View.OnClickList
             Employee employee = new Employee(null, companyTencent.getId(), "Richard" + i, 8000 + i * 1000);
             employeeDao.insert(employee);
         }
-
+        //查询所有数据并更新UI
         quaryAll();
     }
 
@@ -112,6 +133,7 @@ public class RxDaoActivity extends AppCompatActivity implements View.OnClickList
      * deleteAll()： 删除所有记录。
      */
     private void delete() {
+        
     }
 
     /**
@@ -127,12 +149,14 @@ public class RxDaoActivity extends AppCompatActivity implements View.OnClickList
      * 修改Netease公司中薪水小于等于13000人的名字
      */
     private void update() {
+        
     }
 
     /**
      * 查询Tencent公司中薪水大于等于10000的职员
      */
     private void quary() {
+        
     }
 
     /**
@@ -144,6 +168,30 @@ public class RxDaoActivity extends AppCompatActivity implements View.OnClickList
      * queryRaw(String where,String selectionArg)：返回：List
      */
     private void quaryAll() {
-
+        final StringBuilder sb = new StringBuilder();
+        companyDao.loadAll()
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.io())
+                .subscribe(new Action1<List<Company>>() {
+                    @Override
+                    public void call(List<Company> companies) {
+                        if (!companies.isEmpty()) {
+                            sb.append(companies.toString());
+                            tvText.setText(sb + "\n");
+                        } else Log.e("test_gd_rx", "quary:companies为空");
+                    }
+                });
+        employeeDao.loadAll()
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.io())
+                .subscribe(new Action1<List<Employee>>() {
+                    @Override
+                    public void call(List<Employee> employees) {
+                        if (!employees.isEmpty()) {
+                            sb.append(employees.toString());
+                            tvText.setText(sb);
+                        } else Log.e("test_gd_rx", "quary:employees为空");
+                    }
+                });
     }
 }
