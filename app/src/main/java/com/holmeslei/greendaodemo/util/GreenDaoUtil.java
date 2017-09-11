@@ -3,8 +3,14 @@ package com.holmeslei.greendaodemo.util;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 
+import com.holmeslei.greendaodemo.database.CompanyDao;
 import com.holmeslei.greendaodemo.database.DaoMaster;
 import com.holmeslei.greendaodemo.database.DaoSession;
+import com.holmeslei.greendaodemo.database.EmployeeDao;
+import com.holmeslei.greendaodemo.entity.Company;
+import com.holmeslei.greendaodemo.entity.Employee;
+
+import org.greenrobot.greendao.query.QueryBuilder;
 
 /**
  * Description:
@@ -35,4 +41,21 @@ public class GreenDaoUtil {
     public static SQLiteDatabase getDatabase() {
         return database;
     }
+
+    public static CompanyDao getCompanyDao() {
+        return daoSession.getCompanyDao();
+    }
+
+    public static QueryBuilder<Company> getCompanyQuery() {
+        return daoSession.getCompanyDao().queryBuilder();
+    }
+
+    public static EmployeeDao getEmployeeDao() {
+        return daoSession.getEmployeeDao();
+    }
+
+    public static QueryBuilder<Employee> getEmployeeQuery() {
+        return daoSession.getEmployeeDao().queryBuilder();
+    }
+
 }

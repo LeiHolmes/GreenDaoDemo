@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.holmeslei.greendaodemo.R;
 import com.holmeslei.greendaodemo.database.CompanyDao;
@@ -14,12 +15,15 @@ import com.holmeslei.greendaodemo.entity.Company;
 import com.holmeslei.greendaodemo.entity.Employee;
 import com.holmeslei.greendaodemo.util.GreenDaoUtil;
 
+import org.greenrobot.greendao.AbstractDao;
 import org.greenrobot.greendao.rx.RxDao;
 
 import java.util.List;
 
+import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
+import rx.functions.Func1;
 import rx.schedulers.Schedulers;
 
 /**
@@ -43,9 +47,8 @@ public class RxDaoActivity extends AppCompatActivity implements View.OnClickList
     }
 
     private void initData() {
-        DaoSession daoSession = GreenDaoUtil.getDaoSession();
-        companyDao = daoSession.getCompanyDao().rx();
-        employeeDao = daoSession.getEmployeeDao().rx();
+        companyDao = GreenDaoUtil.getCompanyDao().rx();
+        employeeDao = GreenDaoUtil.getEmployeeDao().rx();
         quaryAll();
     }
 
@@ -133,15 +136,56 @@ public class RxDaoActivity extends AppCompatActivity implements View.OnClickList
      * deleteAll()： 删除所有记录。
      */
     private void delete() {
-        
+        Toast.makeText(this, "删除Tencent公司中薪水小于10000的人", Toast.LENGTH_LONG).show();
+        //注意不要插入两次数据，否则此处会报查询结果不唯一的Exception
+        GreenDaoUtil.getCompanyQuery().where(CompanyDao.Properties.CompanyName.eq("Tencent")).rx().unique()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Action1<Company>() {
+                    @Override
+                    public void call(Company company) {
+                        if (company != null) {
+                            GreenDaoUtil.getEmployeeQuery().where(EmployeeDao.Properties.CompanyId.eq(company.getId()),
+                                    EmployeeDao.Properties.Salary.lt(10000)).rx().list()
+                                    .subscribeOn(Schedulers.io())
+                                    .observeOn(AndroidSchedulers.mainThread())
+                                    .flatMap(new Func1<List<Employee>, Observable<Employee>>() {
+                                        @Override
+                                        public Observable<Employee> call(List<Employee> employees) {
+                                            return Observable.from(employees);
+                                        }
+                                    })
+                                    .subscribe(new Action1<Employee>() {
+                                        @Override
+                                        public void call(Employee employee) {
+                                            employeeDao.deleteByKey(employee.getId()).subscribeOn(Schedulers.io());
+                                        }
+                                    });
+                        }
+                    }
+                });
     }
 
     /**
      * 清空数据库数据
      */
     private void deleteAll() {
-        companyDao.deleteAll();
-        employeeDao.deleteAll();
+        companyDao.deleteAll()
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Action1<Void>() {
+                    @Override
+                    public void call(Void aVoid) {
+                        Log.e("test_gd_rx", "deleteAll：Company删除完毕");
+                    }
+                });
+        employeeDao.deleteAll()
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Action1<Void>() {
+                    @Override
+                    public void call(Void aVoid) {
+                        Log.e("test_gd_rx", "deleteAll：Employee删除完毕");
+                    }
+                });
         quaryAll();
     }
 
@@ -149,14 +193,61 @@ public class RxDaoActivity extends AppCompatActivity implements View.OnClickList
      * 修改Netease公司中薪水小于等于13000人的名字
      */
     private void update() {
-        
+        Toast.makeText(this, "修改Netease公司中薪水小于等于13000人的名字", Toast.LENGTH_LONG).show();
+        GreenDaoUtil.getCompanyQuery().where(CompanyDao.Properties.CompanyName.eq("Netease")).rx().unique()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Action1<Company>() {
+                    @Override
+                    public void call(Company company) {
+                        if (company != null) {
+                            GreenDaoUtil.getEmployeeQuery().where(EmployeeDao.Properties.CompanyId.eq(company.getId()),
+                                    EmployeeDao.Properties.Salary.le(13000)).rx().list()
+                                    .subscribeOn(Schedulers.io())
+                                    .observeOn(AndroidSchedulers.mainThread())
+                                    .flatMap(new Func1<List<Employee>, Observable<Employee>>() {
+                                        @Override
+                                        public Observable<Employee> call(List<Employee> employees) {
+                                            return Observable.from(employees);
+                                        }
+                                    })
+                                    .subscribe(new Action1<Employee>() {
+                                        @Override
+                                        public void call(Employee employee) {
+                                            employee.setEmployeeName("baozi");
+                                            employeeDao.update(employee).subscribeOn(Schedulers.io());
+                                        }
+                                    });
+                        }
+                    }
+                });
     }
 
     /**
      * 查询Tencent公司中薪水大于等于10000的职员
      */
     private void quary() {
-        
+        Toast.makeText(this, "查询Tencent公司中薪水大于等于10000的职员", Toast.LENGTH_LONG).show();
+        GreenDaoUtil.getCompanyQuery().where(CompanyDao.Properties.CompanyName.eq("Tencent")).rx().unique()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Action1<Company>() {
+                    @Override
+                    public void call(Company company) {
+                        GreenDaoUtil.getEmployeeQuery().where(EmployeeDao.Properties.CompanyId.eq(company.getId()),
+                                EmployeeDao.Properties.Salary.ge(10000)).orderDesc(EmployeeDao.Properties.Salary).rx().list()
+                                .subscribeOn(Schedulers.io())
+                                .observeOn(AndroidSchedulers.mainThread())
+                                .subscribe(new Action1<List<Employee>>() {
+                                    @Override
+                                    public void call(List<Employee> employees) {
+                                        if (!employees.isEmpty()) {
+                                            tvText.setText(employees.toString());
+                                        }
+                                    }
+                                });
+                    }
+                });
     }
 
     /**
@@ -170,8 +261,8 @@ public class RxDaoActivity extends AppCompatActivity implements View.OnClickList
     private void quaryAll() {
         final StringBuilder sb = new StringBuilder();
         companyDao.loadAll()
-                .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Action1<List<Company>>() {
                     @Override
                     public void call(List<Company> companies) {
@@ -182,8 +273,8 @@ public class RxDaoActivity extends AppCompatActivity implements View.OnClickList
                     }
                 });
         employeeDao.loadAll()
-                .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Action1<List<Employee>>() {
                     @Override
                     public void call(List<Employee> employees) {

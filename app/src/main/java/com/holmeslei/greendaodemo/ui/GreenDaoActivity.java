@@ -37,9 +37,8 @@ public class GreenDaoActivity extends AppCompatActivity implements View.OnClickL
     }
 
     private void initData() {
-        DaoSession daoSession = GreenDaoUtil.getDaoSession();
-        companyDao = daoSession.getCompanyDao();
-        employeeDao = daoSession.getEmployeeDao();
+        companyDao = GreenDaoUtil.getCompanyDao();
+        employeeDao = GreenDaoUtil.getEmployeeDao();
         quaryAll();
     }
 
