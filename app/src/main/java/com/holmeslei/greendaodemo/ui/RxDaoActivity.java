@@ -62,6 +62,7 @@ public class RxDaoActivity extends AppCompatActivity implements View.OnClickList
         findViewById(R.id.main_delete_all).setOnClickListener(this);
         findViewById(R.id.main_update).setOnClickListener(this);
         findViewById(R.id.main_quary).setOnClickListener(this);
+        findViewById(R.id.main_refresh).setOnClickListener(this);
     }
 
     @Override
@@ -81,6 +82,9 @@ public class RxDaoActivity extends AppCompatActivity implements View.OnClickList
                 break;
             case R.id.main_quary: //查询
                 quary();
+                break;
+            case R.id.main_refresh: //刷新
+                quaryAll();
                 break;
         }
     }
@@ -104,7 +108,13 @@ public class RxDaoActivity extends AppCompatActivity implements View.OnClickList
                 .subscribe(new Action1<Company>() {
                     @Override
                     public void call(Company company) {
-                        Log.e("test_gd_rx", "insert：Netease插入完毕");
+                        Log.e("test_gd_rx", "insert:Netease插入完毕");
+                        //插入网易公司的雇员
+                        for (int i = 0; i < 5; i++) {
+                            Employee employee = new Employee(null, company.getId(), "Sherlock" + i, 11000 + i * 1000);
+                            GreenDaoUtil.getEmployeeDao().insert(employee);
+                        }
+                        Toast.makeText(RxDaoActivity.this, "Netease插入完毕", Toast.LENGTH_SHORT).show();
                     }
                 });
         companyDao.insert(companyTencent)
@@ -112,21 +122,15 @@ public class RxDaoActivity extends AppCompatActivity implements View.OnClickList
                 .subscribe(new Action1<Company>() {
                     @Override
                     public void call(Company company) {
-                        Log.e("test_gd_rx", "insert：Tencent插入完毕");
+                        Log.e("test_gd_rx", "insert:Tencent插入完毕");
+                        //插入腾讯公司的雇员
+                        for (int i = 0; i < 5; i++) {
+                            Employee employee = new Employee(null, company.getId(), "Richard" + i, 8000 + i * 1000);
+                            GreenDaoUtil.getEmployeeDao().insert(employee);
+                        }
+                        Toast.makeText(RxDaoActivity.this, "Tencent插入完毕", Toast.LENGTH_SHORT).show();
                     }
                 });
-
-        //插入不同公司的雇员
-        for (int i = 0; i < 5; i++) {
-            Employee employee = new Employee(null, companyNetease.getId(), "Sherlock" + i, 11000 + i * 1000);
-            employeeDao.insert(employee);
-        }
-        for (int i = 0; i < 5; i++) {
-            Employee employee = new Employee(null, companyTencent.getId(), "Richard" + i, 8000 + i * 1000);
-            employeeDao.insert(employee);
-        }
-        //查询所有数据并更新UI
-        quaryAll();
     }
 
     /**
@@ -158,7 +162,15 @@ public class RxDaoActivity extends AppCompatActivity implements View.OnClickList
                                     .subscribe(new Action1<Employee>() {
                                         @Override
                                         public void call(Employee employee) {
-                                            employeeDao.deleteByKey(employee.getId()).subscribeOn(Schedulers.io());
+                                            employeeDao.deleteByKey(employee.getId())
+                                                    .subscribeOn(Schedulers.io())
+                                                    .observeOn(AndroidSchedulers.mainThread())
+                                                    .subscribe(new Action1<Void>() {
+                                                        @Override
+                                                        public void call(Void aVoid) {
+                                                            Log.e("test_gd_rx", "delete:删除完毕");
+                                                        }
+                                                    });
                                         }
                                     });
                         }
@@ -170,22 +182,8 @@ public class RxDaoActivity extends AppCompatActivity implements View.OnClickList
      * 清空数据库数据
      */
     private void deleteAll() {
-        companyDao.deleteAll()
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Action1<Void>() {
-                    @Override
-                    public void call(Void aVoid) {
-                        Log.e("test_gd_rx", "deleteAll：Company删除完毕");
-                    }
-                });
-        employeeDao.deleteAll()
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Action1<Void>() {
-                    @Override
-                    public void call(Void aVoid) {
-                        Log.e("test_gd_rx", "deleteAll：Employee删除完毕");
-                    }
-                });
+        GreenDaoUtil.getCompanyDao().deleteAll();
+        GreenDaoUtil.getEmployeeDao().deleteAll();
         quaryAll();
     }
 
@@ -266,22 +264,28 @@ public class RxDaoActivity extends AppCompatActivity implements View.OnClickList
                 .subscribe(new Action1<List<Company>>() {
                     @Override
                     public void call(List<Company> companies) {
+                        employeeDao.loadAll()
+                                .subscribeOn(Schedulers.io())
+                                .observeOn(AndroidSchedulers.mainThread())
+                                .subscribe(new Action1<List<Employee>>() {
+                                    @Override
+                                    public void call(List<Employee> employees) {
+                                        if (!employees.isEmpty()) {
+                                            sb.append(employees.toString());
+                                            tvText.setText(sb);
+                                        } else {
+                                            Log.e("test_gd_rx", "quaryAll:employees为空");
+                                            tvText.setText("");
+                                        }
+                                    }
+                                });
                         if (!companies.isEmpty()) {
                             sb.append(companies.toString());
                             tvText.setText(sb + "\n");
-                        } else Log.e("test_gd_rx", "quary:companies为空");
-                    }
-                });
-        employeeDao.loadAll()
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Action1<List<Employee>>() {
-                    @Override
-                    public void call(List<Employee> employees) {
-                        if (!employees.isEmpty()) {
-                            sb.append(employees.toString());
-                            tvText.setText(sb);
-                        } else Log.e("test_gd_rx", "quary:employees为空");
+                        } else {
+                            Log.e("test_gd_rx", "quaryAll:companies为空");
+                            tvText.setText("");
+                        }
                     }
                 });
     }

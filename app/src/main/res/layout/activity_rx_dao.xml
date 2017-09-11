@@ -5,16 +5,30 @@
     android:layout_height="match_parent"
     tools:context="com.holmeslei.greendaodemo.ui.RxDaoActivity">
 
-    <TextView
-        android:id="@+id/main_text"
+    <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:padding="10dp"
-        android:text="Hello GreenDao !"
-        android:textColor="#000"
-        android:textSize="16sp" />
+        android:layout_above="@+id/main_refresh">
+
+        <TextView
+            android:id="@+id/main_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="10dp"
+            android:text="Hello GreenDao !"
+            android:textColor="#000"
+            android:textSize="16sp" />
+    </ScrollView>
+
+    <Button
+        android:id="@+id/main_refresh"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/layout"
+        android:text="刷新" />
 
     <LinearLayout
+        android:id="@+id/layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true">
