@@ -1,7 +1,7 @@
 package com.holmeslei.greendaodemo.ui;
 
-import android.app.Activity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
@@ -22,7 +22,7 @@ import java.util.List;
  * author         xulei
  * Date           2017/7/11 10:30
  */
-public class GreenDaoActivity extends Activity implements View.OnClickListener {
+public class GreenDaoActivity extends AppCompatActivity implements View.OnClickListener {
     private TextView tvText;
     private CompanyDao companyDao;
     private EmployeeDao employeeDao;
