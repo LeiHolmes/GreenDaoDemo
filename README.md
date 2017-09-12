@@ -224,6 +224,228 @@ public class Company {
     private String industry;  
 }
 ```
+### 数据库初始化
+　　首先初始化数据库与表，可封装一个工具类，这里献上我的：
+```java
+public class GreenDaoUtil {
+    private static DaoSession daoSession;
+    private static SQLiteDatabase database;
+    /**
+     * 初始化数据库
+     * 建议放在Application中执行
+     */
+    public static void initDataBase(Context context) {
+        //通过DaoMaster的内部类DevOpenHelper，可得到一个SQLiteOpenHelper对象。
+        DaoMaster.DevOpenHelper devOpenHelper = new DaoMaster.DevOpenHelper
+        (context, "greendaoutil.db", null); //数据库名称
+        database = devOpenHelper.getWritableDatabase();
+        DaoMaster daoMaster = new DaoMaster(database);
+        daoSession = daoMaster.newSession();
+    }
+    
+    public static DaoSession getDaoSession() {
+        return daoSession;
+    }
+
+    public static SQLiteDatabase getDatabase() {
+        return database;
+    }
+}
+```
+　　然后在Application中调用。
+```java
+public class MyApplication extends Application {
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        GreenDaoUtil.initDataBase(getApplicationContext());
+    }
+}
+```
+### 插入
+　　插入公司与雇员的假数据：
+```java
+//获取实体Dao
+CompanyDao companyDao = GreenDaoUtil.getDaoSession().getCompanyDao();
+EmployeeDao employeeDao = GreenDaoUtil.getDaoSession().getEmployeeDao();
+//插入公司
+Company company1 = new Company();
+company1.setId(null);
+company1.setCompanyName("Netease");
+company1.setIndustry("news");
+Company company2 = new Company();
+company2.setId(null);
+company2.setCompanyName("Tencent");
+company2.setIndustry("chat");
+companyDao.insert(company1);
+companyDao.insert(company2);
+
+//插入不同公司的雇员
+for (int i = 0; i < 5; i++) {
+    Employee employee = new Employee(null, company1.getId(), "Sherlock" + i, 11000 + i * 1000);
+    employeeDao.insert(employee);
+}
+for (int i = 0; i < 5; i++) {
+    Employee employee = new Employee(null, company2.getId(), "Richard" + i, 8000 + i * 1000);
+    employeeDao.insert(employee);
+}
+```
+　　注意：设置setId(null)，GreenDao会自动分配自增Id。
+### 查询
+　　由于删除与更新基本都需要先进行查询，所以咱们来看看如何进行查询：
+#### QueryBuilder
+　　举例：查询Tencent公司中薪水大于等于10000的职员。
+```java
+//查询Company表中名为Tencent的公司
+Company company = companyDao.queryBuilder()
+.where(CompanyDao.Properties.CompanyName.eq("Tencent"))
+.unique();
+//查询Employee表中属于Tencent公司且薪水水大于等于10000的Employee
+List<Employee> employeeList = employeeDao.queryBuilder()
+.where(EmployeeDao.Properties.CompanyId.eq(company.getId()), 
+EmployeeDao.Properties.Salary.ge(10000))
+.list();
+```
+　　注意：如果查询调用.unique()的话，需注意本次查询的结果必须唯一，否则会报错。where中为查询条件，支持多条件查询以" , "隔开。
+#### Query
+　　使用Query可进行重复查询，更改查询条件参数即可，还是上面的例子。
+```java
+//查询Company表中名为Tencent的公司
+Company company = companyDao.queryBuilder()
+.where(CompanyDao.Properties.CompanyName.eq("Tencent"))
+.unique();
+//查询Employee表中属于Tencent公司且薪水水大于等于10000的Employee
+Query query = employeeDao.queryBuilder()
+.where(EmployeeDao.Properties.CompanyId.eq(company.getId()), 
+EmployeeDao.Properties.Salary.ge(10000))
+.build();
+//修改查询条件参数
+query.setParameter(0, company.getId());
+query.setParameter(1, 11000);
+List<Employee> employeeList = query.list();
+```
+#### load(Long key)
+　　根据主键查询一条记录
+```java
+Company company =  companyDao.load(1l);
+```
+#### loadAll()
+　　查询表中所有记录
+```java
+List<Company> companyList = companyDao.loadAll();
+List<Employee> employeeList = employeeDao.loadAll();
+```
+#### 原声sql查询
+　　推荐通过QueryBuilder和WhereCondition.StringCondition来实现原声sql查询。
+```java
+Query query = companyDao.queryBuilder()
+.where( new StringCondition("_ID IN " + "(SELECT USER_ID FROM USER_MESSAGE WHERE READ_FLAG = 0)"))
+.build();
+```
+　　也可使用queryRaw()或queryRawCreate()方法来实现。
+#### 多线程查询
+　　如果数据量过大，对于数据库查询的操作是很耗时的，所以需要开启新的线程进行查询。
+```java
+private void queryThread() {
+    final Query query = employeeDao.queryBuilder().build();
+    new Thread(){
+        @Override
+        public void run() {
+            List list = query.forCurrentThread().list();
+        }
+    }.start();
+}
+```
+#### 查询条件判断
+##### eq,noteq与like查询
+　　eq判断值是否相等，通常用来具体查找，返回一条指定类型数据。
+　　noteq与eq相反，判断值是否不等，通常用来模糊查找，返回指定类型的集合。
+　　like相当于通配符查询，包含查询值的实体都会返回，同样模糊查找，返回指定类型的集合。
+##### >、<、>=、<=查询
+　　分别对应方法：
+　　>: gt()
+　　<: lt()
+　　>=: ge()
+　　<=: le()
+##### isNull与isNotNull
+　　为空与不为空，判断数据库中有无数据。
+##### 排序
+　　对查询结果进行排序，有升序与降序。
+```java
+List<Employee> employeeList = employeeDao.queryBuilder()
+.where(EmployeeDao.Properties.CompanyId.eq(company.getId()))
+.orderAsc(EmployeeDao.Properties.Salary)
+.list();
+```
+　　上例中的`.orderAsc(EmployeeDao.Properties.Salary)`就是对查询出来的Employee按工资进行升序排序。同理降序为`.orderDesc(EmployeeDao.Properties.Salary)`。　　
+### 删除
+　　删除主要有三种方式：
+#### deleteBykey(Long key)
+　　根据key进行删除。举例：删除Tencent公司中薪水小于10000的人，需先查询出Employee表中属于Tencent公司且薪水小于10000的Employee实体，再进行删除。
+```java
+//查询Company表中名为Tencent的公司
+Company companyTencent = companyDao.queryBuilder()
+.where(CompanyDao.Properties.CompanyName.eq("Tencent"))
+.unique();
+if (companyTencent != null) {
+    //查询Employee表中属于Tencent公司且薪水小于10000的Employee
+    List<Employee> employeeList = employeeDao.queryBuilder()
+    .where(EmployeeDao.Properties.CompanyId.eq(companyTencent.getId()), 
+    EmployeeDao.Properties.Salary.lt(10000))
+    .list();
+    if (employeeList != null) {
+        for (Employee employee : employeeList) {
+            //进行删除
+            employeeDao.deleteByKey(employee.getId());
+        }
+    } else {
+        Log.e("greendao_test", "delete:deleteList为空");
+    }
+} else {
+    Log.e("greendao_test", "delete:company为空");
+}
+```
+#### delete(Employee entity)
+　　根据实体进行删除。举例：删除名为Tencent的公司。
+```java
+//查询Company表中名为Tencent的公司
+Company companyTencent = companyDao.queryBuilder()
+.where(CompanyDao.Properties.CompanyName.eq("Tencent"))
+.unique();
+companyDao.delete(companyTencent);    
+```
+#### deleteAll()
+　 若需删除表中所有实体，则调用此方法。举例：删除所有雇员。
+```java
+employeeDao.deleteAll();
+```
+### 更新
+　　若需对某个已存入数据库实体的属性进行修改，则需进行update操作。举例：修改Netease公司中薪水小于等于13000人的名字
+```java
+//查询Company表中名为Netease的公司
+Company companyNetease = companyDao.queryBuilder()
+.where(CompanyDao.Properties.CompanyName.eq("Netease"))
+.unique();
+if (companyNetease != null) {
+    //查询Employee表中查询Employee表中属于Netease公司且薪水小于等于13000人的Employee
+    List<Employee> employeeList = employeeDao.queryBuilder()
+    .where(EmployeeDao.Properties.CompanyId.eq(companyNetease.getId()), 
+    EmployeeDao.Properties.Salary.le(13000))
+    .list();
+    if (employeeList != null) {
+        for (Employee employee : employeeList) {
+            //修改属性
+            employee.setEmployeeName("baozi");
+            //进行更新
+            employeeDao.update(employee);
+        }
+    } else {
+        Log.e("greendao_test", "update:updateList为空");
+    }
+} else {
+    Log.e("greendao_test", "update:company为空");
+}
+```
 ### 总结
-　　到此，这一篇关于GreenDao3.0的集成与注解就讲解完毕了。技术渣一枚，有写的不对的地方欢迎大神们留言指正，有什么疑惑或者不懂的地方也可以在Issues中提出，我会及时解答。
+　　到此，这一篇关于GreenDao3.0的集成，注解与使用就讲解完毕了。技术渣一枚，有写的不对的地方欢迎大神们留言指正，有什么疑惑或者不懂的地方也可以在Issues中提出，我会及时解答。
 
