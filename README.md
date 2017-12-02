@@ -22,7 +22,7 @@ buildscript {
         classpath 'com.android.tools.build:gradle:2.3.2'
         classpath 'org.greenrobot:greendao-gradle-plugin:3.2.1'
     }
-}
+} 
 ```
 #### app下build.gradle
 　　在app下build.gradle文件中我们需要声明GreenDao插件，及配置GreenDao生成dao路径等信息，声明GreenDao依赖。
