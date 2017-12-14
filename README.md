@@ -31,7 +31,7 @@ apply plugin: 'org.greenrobot.greendao'
 
 ......
 
-greendao {
+greendao { 
     schemaVersion 1 //数据库版本号    
     daoPackage 'com.holmeslei.greendaodemo.database' //设置时生成代码的目录    
     targetGenDir 'src/main/java' //设置DaoMaster、DaoSession、Dao目录   
