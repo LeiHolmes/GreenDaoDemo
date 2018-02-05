@@ -25,7 +25,7 @@ buildscript {
 } 
 ```
 #### app下build.gradle
-　　在app下build.gradle文件中我们需要声明GreenDao插件，及配置GreenDao生成dao路径等信息，声明GreenDao依赖。
+　　在app下build.gradle文件中我们需要声明GreenDao插件，及配置GreenDao生成dao路径等信息，声明GreenDao依赖。 
 ```java
 apply plugin: 'org.greenrobot.greendao'
 
