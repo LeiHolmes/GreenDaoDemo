@@ -39,7 +39,7 @@ greendao {
     //generateTests：设置自动生成单元测试用例
 }
 
-dependencies {
+dependencies { 
     ......
     compile 'org.greenrobot:greendao:3.2.0'
 }
