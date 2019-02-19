@@ -1,4 +1,4 @@
-### GreenDao简介  
+### GreenDao简介   
 　　GreenDao是一个将对象映射到SQLite数据库中的轻量且快速的ORM数据库框架，本文将讲解如何集成GreenDao3.0环境，如何使用GreenDao自动生成代码及注解的使用。  
 　　[GreenDao官网](http://greenrobot.org/greendao/)  
 　　[GreenDao GitHub](https://github.com/greenrobot/greenDAO) 
